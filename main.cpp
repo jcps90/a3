@@ -25,13 +25,14 @@ using namespace std;
 int userVal[3];
 int chk;
 
-
-void mtSignalHandler(int signum){
+// the signal handler for SIGINT, this is the signal handler for Thread Zero
+void mtSignalHandler(int signum){ 
     if(signum == SIGINT){
         raise(SIGTERM);
     }
 }
 
+// the signal handler for SIGINT, this is the signal handler for all other threads
 void signalHandler(int signum){
     if(signum == SIGTERM){
         cout << "SIGNUM=" << signum << "\n";
@@ -40,7 +41,7 @@ void signalHandler(int signum){
 }
 
 void * countDown(void *arg){
-    signal(SIGTERM, signalHandler);
+    signal(SIGTERM, signalHandler);     // when called, the thread running countDown function will be ready to recieve the SIGTERM signal when it is raised
     
     for(int countDownTimer = (intptr_t)arg; countDownTimer != 0;  countDownTimer--){              //runs while cd has not reached zero
         sleep(1);
@@ -51,7 +52,7 @@ void * countDown(void *arg){
 }
 
 void * wallClock(void *arg){             
-    signal(SIGTERM, signalHandler);
+    signal(SIGTERM, signalHandler);     // when called, the thread running wallClock function will be ready to recieve the SIGTERM signal when it is raised
 
     int wallClockTimer = (intptr_t)arg;
     while(true){                        //infinite loop start so this allows the clock to print indeffinately                                   
@@ -62,9 +63,9 @@ void * wallClock(void *arg){
     }
 }
 
-void * alarm(void *arg){                //one time allarm
+void * alarm(void *arg){                  //one time allarm
 
-    signal(SIGTERM, signalHandler);
+    signal(SIGTERM, signalHandler);       // when called, the thread running alarm function will be ready to recieve the SIGTERM signal when it is raised
     int alarmTime = (intptr_t)arg;
     while(alarmTime != 0){                //while countdown has not
         sleep(1);                         //1 second wait
@@ -74,27 +75,26 @@ void * alarm(void *arg){                //one time allarm
 }
 
 void * createSubThreads(void *arg){        //creates 3 more threads which are responsible for the wallClock, alarm and main countdown
-
+    //this will produce the Thread IDs for the 3 working threads.
     pthread_t countDownID;
     pthread_t wallClockID;
     pthread_t alarmID;
      
-    signal(SIGINT, mtSignalHandler);
+    signal(SIGINT, mtSignalHandler); // this signal call is for the main thread to be ready to recieve the signal from the countDown thread that the countdown is done
     int threadOne = pthread_create(&countDownID, NULL,  countDown, (void *) arg);       //creates main countdown
-    int threadTwo = pthread_create(&wallClockID, NULL, wallClock, (void *) userVal[1]);//create wallclockThread w/ wallclockTime
-    int threadThree = pthread_create(&alarmID, NULL,  alarm, (void *) userVal[2]);//create alarmThread w/ alarmTime;
-    pthread_join(countDownID, NULL);
+    int threadTwo = pthread_create(&wallClockID, NULL, wallClock, (void *) userVal[1]); //create wallclockThread 
+    int threadThree = pthread_create(&alarmID, NULL,  alarm, (void *) userVal[2]);      //create alarmThread
+    pthread_join(countDownID, NULL); //the pthread_join has the calling thread wait for the child threads to finish before continuing 
     pthread_join(wallClockID, NULL);
     pthread_join(alarmID, NULL);
 
 }
 
 void createMainThread(){            //creates main thread, thread #1
-    pthread_t mainThreadID;
+    pthread_t mainThreadID; //create Thread ID
     //this is the main thread
-    int threadZero = pthread_create(&mainThreadID, NULL, createSubThreads, (void *) userVal[0]);
-    pthread_join(mainThreadID, NULL);
-    cout << "threads created!" << "\n";
+    int threadZero = pthread_create(&mainThreadID, NULL, createSubThreads, (void *) userVal[0]); //creates main thread and passes through the argument needed for countdown
+    pthread_join(mainThreadID, NULL); //because main() itself is on a thread, we must call pthread_join so the program doesnt terminate when main() reaches the end.
 }
 
 
