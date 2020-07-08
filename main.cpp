@@ -1,3 +1,11 @@
+/*
+Authors: Juan Pina-Sanz, Mikhail Mineev
+Users: cssc2147, cssc2160
+Class: CS 570, Summer 2020
+Assignment 3
+Filename: main.cpp
+*/
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,107 +18,6 @@
 #include <sys/types.h>
 
 using namespace std;
-/*
-///////CountDown//////////////////
-
-class CountDown{
-    private:
-    	int countDownTimer;
-        void mainCountdown();
-    public:
-        CountDown(int);
-        void run();       
-};
-
-void CountDown::mainCountdown(){             //main countdown
-    while(countDownTimer != 0){              //runs while cd has not reached zero
-    sleep(1);
-    cout << countDownTimer << "\n";
-    if(countDownTimer == 5){
-            raise(SIGINT);
-    }
-    countDownTimer--;
-    }
-    cout << "count down over!" << "\n";
-    //raise(SIGINT);                         //once 0 is reached raises the terminate flag
-}
-
- CountDown::CountDown(int a){
-    countDownTimer = a;
-}
-// calls signal to watchout for a SIGTERM signal and calls the private function
-// mainCountdown to begin keeping track of the timer.
-void CountDown::run(){                                 //prog runner
-    //signal(SIGTERM,);                                //terminate flag
-    cout << "got into run() " << "\n";
-    mainCountdown();                                   //countdown funciton
-}
-
-
-//////WallClock/////////////////
-class WallClock{
-
-    public: 
-        WallClock(int);
-        void runClock();
-    private:
-    	int wallClockTimer; //either 1 second or 60 seconds
-        void myClock();
-};
-
-WallClock::WallClock(int b){
-   	wallClockTimer = b;
-}
-
-void WallClock::myClock(){
-                       //wallclock printer
-    time_t my_time = time(NULL); 
-    printf("%s", ctime(&my_time));
-    sleep(wallClockTimer);
-
-}
-
-void WallClock :: runClock(){
-    //signal(SIGTERM);
-    while(true){
-    myClock();
-    }
-}
-    
-///////////////Alarm///////////////////
-class Alarm{
-    public:
-   	    Alarm(int);
-        void runAlarm();
-    private: 
-    	int alarmTime;
-        void alarmCD();
-};
-
-Alarm::Alarm(int c){
-    	alarmTime = c;
-}
-
-void Alarm :: alarmCD(){                                 //Alarm function                     
-    while(alarmTime != 0){                               //while countdown has not
-    sleep(1);                                            //1 second wait
-    alarmTime--;                                         //reduce countdown by 1
-    }
-    cout << "ALARM!\n";                                             //once countdown reaches 0 print an alarm
-}   
-
-void Alarm:: runAlarm(){
-    //signal(SIGTERM);
-    alarmCD();
-}
-
-
-void MainThread::startThreads(){
-    createThreads();
-}
-*/
-
-
 
 ///////////////////////////////////
 ///////////////Main////////////////
@@ -137,7 +44,6 @@ void * countDown(void *arg){
     
     for(int countDownTimer = (intptr_t)arg; countDownTimer != 0;  countDownTimer--){              //runs while cd has not reached zero
         sleep(1);
-        //cout << countDownTimer << "\n";
         }
 
     cout << "count reached zero!" << "\n";
@@ -148,33 +54,33 @@ void * wallClock(void *arg){
     signal(SIGTERM, signalHandler);
 
     int wallClockTimer = (intptr_t)arg;
-    while(true){
+    while(true){                        //infinite loop start so this allows the clock to print indeffinately                                   
         //int wallClockTimer = arg;
-        time_t my_time = time(NULL); 
-        printf("%s", ctime(&my_time));
-        sleep(wallClockTimer);
+        time_t my_time = time(NULL);    //takes local time from the system
+        printf("%s", ctime(&my_time));  //prints time and day onto the screen
+        sleep(wallClockTimer);          //sleep for entered ammount 1 sec or 60 sec
     }
 }
 
-void * alarm(void *arg){
+void * alarm(void *arg){                //one time allarm
 
     signal(SIGTERM, signalHandler);
     int alarmTime = (intptr_t)arg;
-    while(alarmTime != 0){                                   //while countdown has not
-        sleep(1);                                            //1 second wait
-        alarmTime--;                                         //reduce countdown by 1
+    while(alarmTime != 0){                //while countdown has not
+        sleep(1);                         //1 second wait
+        alarmTime--;                      //reduce countdown by 1
         }
-    cout << "ALARM!\n";
+    cout << "ALARM!\n";                   //prints out alarm after countdown oover
 }
 
-void * createSubThreads(void *arg){
+void * createSubThreads(void *arg){        //creates 3 more threads which are responsible for the wallClock, alarm and main countdown
 
     pthread_t countDownID;
     pthread_t wallClockID;
     pthread_t alarmID;
      
     signal(SIGINT, mtSignalHandler);
-    int threadOne = pthread_create(&countDownID, NULL,  countDown, (void *) arg);
+    int threadOne = pthread_create(&countDownID, NULL,  countDown, (void *) arg);       //creates main countdown
     int threadTwo = pthread_create(&wallClockID, NULL, wallClock, (void *) userVal[1]);//create wallclockThread w/ wallclockTime
     int threadThree = pthread_create(&alarmID, NULL,  alarm, (void *) userVal[2]);//create alarmThread w/ alarmTime;
     pthread_join(countDownID, NULL);
@@ -183,7 +89,7 @@ void * createSubThreads(void *arg){
 
 }
 
-void createMainThread(){
+void createMainThread(){            //creates main thread, thread #1
     pthread_t mainThreadID;
     //this is the main thread
     int threadZero = pthread_create(&mainThreadID, NULL, createSubThreads, (void *) userVal[0]);
@@ -193,8 +99,8 @@ void createMainThread(){
 
 
 //checks that the input int is either a 1 or 60, if not, it will output an error and exit the program
-int check(int interval){
-    if(interval == 1){                        					//if the interval does not eaual 1 or 60 return an error        
+int check(int interval){                
+    if(interval == 1){                        					      
         return 0;
     }else if(interval == 60){
         return 0;
