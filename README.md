@@ -27,7 +27,7 @@ The second number after mot can be either 1 or 60, any other input causes an err
 The last number is a one time alarm which will print after the entered time in seconds passes.
 If the Overall countdown ends before one or both other threads run then the program terminates without them running.
                     
-Mikhail Mineev made the countdown, wallClock, and alram.
+Mikhail Mineev made the countdown, wallClock, alram and check.
 Juan Pina-Sanz made the main and the threads.
 Both worked on the comments and README
 
