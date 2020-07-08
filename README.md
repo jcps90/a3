@@ -14,7 +14,7 @@ Run on Class Account cssc2147
 
 Compile Instructions: Compile using make
 
-Operation Instructions: After compiling run the msh file with 3 numbers spaced out (ex: ./msh 23 1 2) if no numbers are entered                           then the default entrees of 25 1 17 is used.
+Operation Instructions: After compiling run the mot file with 3 numbers spaced out (ex: ./mot 23 1 2) if no numbers are entered                           then the default entrees of 25 1 17 is used.
 
 Design Description: We first create 4 threads.
                     The Main thread is responsible for recieving and sending signals.
