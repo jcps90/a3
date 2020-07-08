@@ -10,7 +10,7 @@
 EXEC = mot
 CC=g++
 $(EXEC):
-	$(CC) -o $(EXEC) main.cpp 
+	$(CC) -o $(EXEC) main.cpp -lpthread 
 	rm -f *.o
 clean:
 	rm -f *.o core a.out mot $(EXEC)
